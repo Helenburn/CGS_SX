@@ -1,0 +1,184 @@
+---
+title: "CGS"
+author: "Helen Burn"
+date: "2024-07-30"
+output: html_document
+---
+---
+title: "CGS_SX"
+author: "Helen Burn"
+date: "2024-07-29"
+output: html_document
+---
+
+## R Markdown
+#File for SX's Project_V3
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+##Load File for CGS data
+#Data for winter 2022-spring 2023
+```{r}
+#install.packages(tidyverse)
+library (tidyverse)
+```
+```{r}
+cgs <- read_csv("C:/Users/hburn/Documents/R.Projects/CGS_SX/CGSdata.csv")
+view(cgs)
+#select out the variables I need for our analysis
+cgs2<-select (cgs, coursenum, gender, urm, firstgen, prereq_grade, pass, grade)
+view(cgs2)
+
+```
+```{r}
+#identifying missing data
+cgs2 %>% count(gender)
+cgs2 %>% count(urm)
+cgs2 %>% count(firstgen)
+cgs2 %>% count(prereq_grade)
+cgs2 %>% count(pass)
+cgs2 %>% count(grade)
+
+```
+```{r}
+#syntax for exploring group difference by gender, urm, firstgen, prereq_grade
+cgs2 %>% 
+  group_by(coursenum, gender) %>% 
+  summarize(mean(pass), na.rm = TRUE)
+
+cgs2 %>% 
+  group_by(coursenum, urm) %>% 
+  summarize(mean(pass), na.rm = TRUE)
+
+cgs2 %>% 
+  group_by(coursenum, firstgen) %>% 
+  summarize(mean(pass), na.rm = TRUE)
+
+cgs2 %>% 
+  group_by(coursenum, prereq_grade) %>% 
+  summarize(mean(pass), na.rm = TRUE)
+
+calc2 <- filter (cgs2, coursenum == "Math152_Calc2")
+calc3 <- filter (cgs2, coursenum == "Math153_Calc3")
+```
+
+
+
+```{r}
+#chi square test....this has a Yates correction. Very interesting. I was able to get the right answers based onthe chisq calculator. 
+#gender
+
+  x<- calc2 %>% 
+      pull(gender) 
+  y <- calc2 %>% 
+      pull (pass) 
+    
+  summary(chisq.test(x, y) )
+
+x<- calc3 %>% 
+    pull(gender) 
+y <- calc3 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+#urm
+
+x<- calc2 %>% 
+    pull(urm) 
+y <- calc2 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+x<- calc3 %>% 
+    pull(urm) 
+y <- calc3 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+#firstgen
+
+x<- calc2 %>% 
+    pull(firstgen) 
+y <- calc2 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+x<- calc3 %>% 
+    pull(firstgen) 
+y <- calc3 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+#prereq_grade
+
+x<- calc2 %>% 
+    pull(prereq_grade) 
+y <- calc2 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+x<- calc3 %>% 
+    pull(prereq_grade) 
+y <- calc3 %>% 
+    pull (pass) 
+  
+chisq.test(x, y) 
+
+```
+```{r}
+#attempt 2 on chi square. This also worked
+
+observed <- matrix(c(35, 14, 82, 36), nrow = 2, byrow = TRUE)
+rownames(observed) <- c("Females", "Males")
+colnames(observed) <- c("Pass", "Failed")
+view (observed)
+
+
+# Perform the chi-squared test
+result <- chisq.test(observed)
+
+# Print the test result
+print(result)
+
+
+
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+
+#Graphing
+```{r}
+
+#library(esquisse)
+#esquisser (cgs)
+ggplot(cgs) +
+  aes(x = prereq_grade, y = pass, colour = coursenum) +
+  geom_jitter() +
+  scale_color_hue(direction = 1)+ 
+  geom_point(position=position_jitter(width=0.1, height=0.1))+
+  labs("Prerequisite Grade (0 - < B, 1 - B or above)", "Pass (0 - no, 1 - yes)")
+
+ggplot(cgs) +
+  aes(x = gender, y = pass, colour = coursenum) +
+  geom_jitter() +
+  scale_color_hue(direction = 1)+ 
+  geom_point(position=position_jitter(width=0.1, height=0.1))+
+  labs("Prerequisite Grade (0 - < B, 1 - B or above)", "Pass (0 - no, 1 - yes)")
+
+
+
+ 
+```
+
